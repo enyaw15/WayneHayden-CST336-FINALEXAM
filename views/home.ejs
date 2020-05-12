@@ -1,6 +1,10 @@
 <%- include("templates/header.ejs")-%>
 
-<h1>Home Page</h1>
-<a href = '/quiz' class = "btn btn-outline-primary">Start Quiz</a>
+<h1>Enter your email to take the test!</h1>
+<form method="POST" action="/login">
+    <label for="email">Email</label>
+    <input type='email' name='email' required/>
+    <button class = "btn btn-outline-primary" type='submit'>Start Quiz</button>
+</form>
 
 <%- include("templates/footer.ejs") -%>

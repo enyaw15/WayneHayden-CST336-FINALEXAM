@@ -3,26 +3,27 @@
 <h1>Quiz</h1>
 <div class = "jumbotron">
     <h3>Question: <%=quiz.question%></h3>
-    <form class="form-group" Content-Type="json" method="POST" action="/quiz" >
+    <h5>Score: <%=score%>/<%=qNumber%></h5>
+    <form class="form-group" method="POST" action="/quiz" >
         
-        <input type = "radio" name="choice"  id="choice0" value="<%=quiz.choice1%>"/>
+        <input type = "radio" name="choice"  id="<%=quiz.choice0%>" value="<%=quiz.choice1%>"/>
         <label for="<%=quiz.choice1%>"><%=quiz.choice1%></label><br>
-        <input type = "radio" name="choice"  id="choice1" value="<%=quiz.choice2%>"/>
+        <input type = "radio" name="choice"  id="<%=quiz.choice1%>" value="<%=quiz.choice2%>"/>
         <label for="<%=quiz.choice2%>"><%=quiz.choice2%></label><br>
-        <input type = "radio" name="choice"  id="choice2" value="<%=quiz.choice3%>"/>
+        <input type = "radio" name="choice"  id="<%=quiz.choice2%>" value="<%=quiz.choice3%>"/>
         <label for="<%=quiz.choice3%>"><%=quiz.choice3%></label><br>
-        <input type = "radio" name="choice"  id="choice3" value="<%=quiz.choice4%>"/>
+        <input type = "radio" name="choice"  id="<%=quiz.choice3%>" value="<%=quiz.choice4%>"/>
         <label for="<%=quiz.choice4%>"><%=quiz.choice4%></label><br>
         
-        <input type="text" value="Hello">
-        <button  type="button" id="checkAnswer" class ="btn btn-primary">Submit</button>   
-        <button  type="submit" id="submit" class ="btn btn-success" disabled>Next Question</button>   
+        <button  type="submit" id="checkAnswer" class ="btn btn-primary">Check Answer</button>   
+        <button  type="button" id="nextQuestion" class ="btn btn-success" disabled>Next Question</button>   
     </form>
 </div>
 
 <div id = "feedback" ></div>
 
 <script>
+/*
 $("#checkAnswer").on("click", function(){
    let choice = $(`input[name=choice]:checked`).val(); 
    let answer = "<%=quiz.answer%>"
@@ -43,7 +44,8 @@ $("#checkAnswer").on("click", function(){
    }
    //switch buttons
    $("#checkAnswer").prop("disabled",true);
-   $("#submit").prop("disabled",false);
+   $("#submit").removeAttr("hidden");
 });
+*/
 </script>
 <%- include("templates/footer.ejs") -%>
