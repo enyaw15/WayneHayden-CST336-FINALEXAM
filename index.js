@@ -14,26 +14,41 @@ app.use(session({
 app.set('view engine', 'ejs');//set the view engine so we can use ejs
 
 //create sql server 
-/*
-const connection = mysql.createConnection({
-    host:"localhost",
-    user: "enyaw",
-    password: "0215Enyaw!",
-    database: "quiz_db"
-});
-*/
 //mysql://beb956d049b1b0:4ce83054@us-cdbr-east-06.cleardb.net/heroku_88219e38d1dcf7d?reconnect=true
 //reset the database
 //mysql -u b081679114026f --password=23b7c662 -h us-cdbr-east-06.cleardb.net heroku_ba1f10e7295fc08 < sql/quiz.sql
 //mysql://b081679114026f:23b7c662@us-cdbr-east-06.cleardb.net/heroku_ba1f10e7295fc08?reconnect=true
 
-const connection = mysql.createConnection({
+var db_config = {
     host:"us-cdbr-east-06.cleardb.net",
     database:"heroku_ba1f10e7295fc08",
     user:"b081679114026f",
     password:"23b7c662"
-});
-connection.connect();
+};
+
+var connection = db_config;
+
+function handleDisconnect() {
+  connection = mysql.createConnection(db_config); // Recreate the connection, since the old one cannot be reused.
+
+connection.connect(function(err) {          // The server is either down or restarting (takes a while sometimes).
+    if(err) {                                
+        console.log('error when connecting to db:', err);
+        setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+    }                                       // to avoid a hot loop, and to allow our node script to
+});                                         // process asynchronous requests in the meantime.
+
+  connection.on('error', function(err) {
+    console.log('db error', err);
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+      handleDisconnect();                         // lost due to either server restart, or a
+    } else {                                      // connnection idle timeout (the wait_timeout
+      throw err;                                  // server variable configures this)
+    }
+  });
+}
+
+handleDisconnect();
 
 
 //start the app listening on a port and do a function
