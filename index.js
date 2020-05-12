@@ -14,24 +14,27 @@ app.use(session({
 app.set('view engine', 'ejs');//set the view engine so we can use ejs
 
 //create sql server 
+/*
 const connection = mysql.createConnection({
     host:"localhost",
     user: "enyaw",
     password: "0215Enyaw!",
     database: "quiz_db"
 });
+*/
 //mysql://beb956d049b1b0:4ce83054@us-cdbr-east-06.cleardb.net/heroku_88219e38d1dcf7d?reconnect=true
 //reset the database
-//mysql -u beb956d049b1b0 --password=4ce83054 -h us-cdbr-east-06.cleardb.net heroku_88219e38d1dcf7d < sql/initdbs.sql
-/*
+//mysql -u b081679114026f --password=23b7c662 -h us-cdbr-east-06.cleardb.net heroku_ba1f10e7295fc08 < sql/quiz.sql
+//mysql://b081679114026f:23b7c662@us-cdbr-east-06.cleardb.net/heroku_ba1f10e7295fc08?reconnect=true
+
 const connection = mysql.createConnection({
     host:"us-cdbr-east-06.cleardb.net",
-    database:"heroku_88219e38d1dcf7d",
-    user:"beb956d049b1b0",
-    password:"4ce83054"
-})
+    database:"heroku_ba1f10e7295fc08",
+    user:"b081679114026f",
+    password:"23b7c662"
+});
 connection.connect();
-*/
+
 
 //start the app listening on a port and do a function
 app.listen(process.env.PORT, function()
@@ -44,7 +47,18 @@ function getQuestion(qId){
     return new Promise(function(resolve,reject){
        connection.query(stmt,[qId],function(error, results) {
            if(error) throw error;
-           resolve(results[0]);
+           //randomize answers
+           let question = results[0];
+           let ans = [];
+           ans.push(question.choice1);
+           ans.push(question.choice2);
+           ans.push(question.choice3);
+           ans.push(question.choice4);
+           question.choice1 = ans.splice(Math.floor(Math.random()*ans.length),1);//remove one random ans from the ans array and put it back into the question
+           question.choice2 = ans.splice(Math.floor(Math.random()*ans.length),1);//remove one random ans from the ans array and put it back into the question
+           question.choice3 = ans.splice(Math.floor(Math.random()*ans.length),1);//remove one random ans from the ans array and put it back into the question
+           question.choice4 = ans.splice(Math.floor(Math.random()*ans.length),1);//remove one random ans from the ans array and put it back into the question
+           resolve(question);
        });
     });
 }
@@ -99,18 +113,56 @@ async function buildQuiz()
 
 function isAuthenticated(req, res, next)
 {
-    if(!req.session.authenticated) res.redirect('/home');
+    if(!req.session.authenticated) res.redirect('/');
     else next();
+}
+
+function storeResults(req)
+{
+    let stmt = "INSERT INTO scores (email, score) VALUES (?,?);";
+    return new Promise(function(resolve,reject){
+       connection.query(stmt,[req.session.email,req.session.score],function(error,results){
+           if(error) throw error;
+           resolve(results);
+       });
+    });
+}
+
+function getScores(req)
+{
+    let stmt = "SELECT score FROM scores WHERE email=?;";
+    return new Promise(function(resolve,reject){
+       connection.query(stmt,[req.session.email],function(error,results){
+           if(error) throw error;
+           resolve(results);
+       });
+    });
+}
+
+function getScore(req)
+{
+    let stmt = "SELECT id, score FROM scores WHERE email=?;";
+    return new Promise(function(resolve,reject){
+       connection.query(stmt,[req.session.email],function(error,results){
+           if(error) throw error;
+           resolve(results[results.length-1]);
+       });
+    });
 }
 
 //looks for url matching the string and does the function
 // looks for a /
 app.get("/", function(req,res){
-    res.render("home.ejs");
+    res.render("home.ejs",{authenticated:req.session.authenticated,email:req.session.email});
 });
-//isAuthenticated
-app.get("/quiz", async function(req, res) {
-    console.log(req.session.q > 2);
+
+app.get("/quiz",isAuthenticated, async function(req, res) {
+    if(!req.session.quiz)
+    {
+        req.session.quiz = (await buildQuiz());
+        req.session.q = 0;
+        req.session.score = 0;
+    }
     if(req.session.q > 2)
     {
         res.redirect("/complete");
@@ -141,11 +193,8 @@ app.get("/login", function(req, res){
 app.post("/login", async function(req, res){
     req.session.authenticated = true;
     req.session.email = req.body.email;
-    req.session.quiz = (await buildQuiz());
-    req.session.q = 0;
-    req.session.score = 0;
     
-    res.redirect("/quiz");
+    res.redirect("/");
     /*
     let users = await checkUsername(req.body.username);
     let hashedPassword = users.length > 0 ? users[0].password : '';
@@ -162,9 +211,44 @@ app.post("/login", async function(req, res){
     */
 });
 
-app.get("/complete",function(req,res)
+//logout route
+app.get('/logout', function(req, res) {
+    req.session.destroy();
+    res.redirect('/');
+});
+
+app.get("/report",isAuthenticated, async function(req, res) {
+    let score = await getScore(req);
+    if(!score){
+        res.redirect("/noquizes");
+    }
+    else
+    {
+        res.render("report.ejs",{score:score});
+    }
+    
+});
+
+app.get("/average",isAuthenticated, async function(req, res) {
+    let scores = await getScores(req);
+    if(scores.length == 0){
+        res.redirect("/noquizes");
+    }
+    else
+    {
+        res.render("average.ejs",{scores:scores});
+    }
+});
+
+app.get("/complete",isAuthenticated, async function(req,res)
 {
+    await storeResults(req);
+    delete req.session.quiz;
     res.render("complete.ejs",{score:req.session.score,qNumber:req.session.q});
+});
+
+app.get("/noquizes", function(req, res) {
+    res.render("noquizes.ejs");
 });
 
 // regex star takes everything this should be last so that other options are hit first

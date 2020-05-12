@@ -1,0 +1,10 @@
+<%- include("templates/header.ejs")-%>
+
+<h1>Login</h1>
+<form method="POST" action="/login">
+    <label for="email">Email</label>
+    <input type='email' name='email' required/>
+    <button class = "btn btn-outline-primary" type='submit'>Login</button>
+</form>
+
+<%- include("templates/footer.ejs") -%>

@@ -1,0 +1,14 @@
+<%- include("templates/header.ejs")-%>
+
+<%let total = 0;%>
+<%for(var i = 0; i < scores.length; i++){%>
+<% total+=scores[i].score;%>
+<h6>Attempt <%=i+1%>, Score: <%=scores[i].score%></h6>
+<%}%>
+<%average = Math.round((total/scores.length) * 100) / 100;%>
+
+<h6>Average Score: <%=average%></h6>
+<h6>Total Attempts: <%=scores.length%></h6>
+<a href="/" class="btn btn-primary">Home</a>
+
+<%- include("templates/footer.ejs") -%>

@@ -1,10 +1,12 @@
 <%- include("templates/header.ejs")-%>
-
-<h1>Enter your email to take the test!</h1>
-<form method="POST" action="/login">
-    <label for="email">Email</label>
-    <input type='email' name='email' required/>
-    <button class = "btn btn-outline-primary" type='submit'>Start Quiz</button>
-</form>
-
+<%if(!authenticated){%>
+<h1>Login to take the quiz & see scores!</h1>
+<a href="/login" class = "btn btn-primary">login</a>
+<%}else{%>
+<h1>Hello <%=email%>!</h1>
+<a href="/quiz" class="btn btn-primary">Start Quiz</a>
+<a href="/report" class="btn btn-primary">Score Report</a>
+<a href="/average" class="btn btn-primary">Average Scores</a>
+<a href="/logout" class="btn btn-primary">Logout</a>
+<%}%>
 <%- include("templates/footer.ejs") -%>
