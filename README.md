@@ -1,3 +1,4 @@
+Part 1:
 Q1. The slice function returns a specified range of values from an array witout changing the original array. the splice function changes the original array. The splice method can add or remove items from an array returning the items that were removed from the array if there were any.
 
 Q2. The three states of a promise are pending, fulfilled, and rejected. pending is the state that occurs when the promise is created and is waiting for something to happen. fulfilled and rejected are the end states of a promise representing success and failure of the function return.
@@ -11,3 +12,6 @@ Q2. The three states of a promise are pending, fulfilled, and rejected. pending 
     //the result is the result after each promise is completed.
     
 Q3. CRUD represents the 4 basic database manipulations those being: Create, Read, Update, and Delete. In Express these are: POST, GET, PUT, and DELETE. In SQL these are: INSERT INTO VALUES, SELCET FROM WHERE, UPDATE SET WHERE, and DELETE FROM WHERE.
+
+Part 2:
+Tasks: 1,2,3,4,7,8,9,10,11,13,14
